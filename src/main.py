@@ -1,7 +1,10 @@
 import sys
 import os
 
-# Função para limpar o ecrã (funciona em Windows e Linux)
+# Adiciona o diretório atual ao path para garantir que encontra os módulos
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from network import scanner  # Importa o nosso novo módulo
+
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -16,9 +19,10 @@ def print_header():
 def main_menu():
     while True:
         print_header()
-        print("\n[1] Ferramentas de Rede (Scanner, Floods)")
+        print("\n=== MENU PRINCIPAL ===")
+        print("[1] Ferramentas de Rede (Scanner, Floods)")
         print("[2] Análise de Logs e Geolocalização")
-        print("[3] Segurança (Password Manager, Chat)")
+        print("[3] Segurança (Password Manager, Chat Seguro)")
         print("[4] Relatórios e Base de Dados")
         print("[0] Sair")
         
@@ -26,25 +30,37 @@ def main_menu():
             choice = input("\nEscolha uma opção: ")
             
             if choice == '1':
-                print("\n>> A implementar módulo de rede...")
-                input("Enter para continuar...")
+                print("\n=== PORT SCANNER ===")
+                target = input("Alvo (IP ou domínio, ex: scanme.nmap.org): ")
+                try:
+                    p_start = int(input("Porto Inicial (ex: 20): "))
+                    p_end = int(input("Porto Final (ex: 80): "))
+                    
+                    # Chama a função do nosso ficheiro scanner.py
+                    scanner.scan_ports(target, p_start, p_end)
+                    
+                except ValueError:
+                    print("[!] Erro: Os portos devem ser números inteiros.")
+                
+                input("\nPressione ENTER para voltar...")
+
             elif choice == '2':
-                print("\n>> A implementar módulo de logs...")
-                input("Enter para continuar...")
+                print("\n>> [Em Desenvolvimento] Módulo de Logs...")
+                input("Pressione ENTER para voltar...")
             elif choice == '3':
-                print("\n>> A implementar módulo de segurança...")
-                input("Enter para continuar...")
+                print("\n>> [Em Desenvolvimento] Módulo de Segurança...")
+                input("Pressione ENTER para voltar...")
             elif choice == '4':
-                print("\n>> A implementar relatórios...")
-                input("Enter para continuar...")
+                print("\n>> [Em Desenvolvimento] Módulo de Relatórios...")
+                input("Pressione ENTER para voltar...")
             elif choice == '0':
                 print("\nA sair...")
                 sys.exit()
             else:
                 print("\n[!] Opção inválida.")
-                input("Enter para continuar...")
+                input("Tentar novamente...")
         except KeyboardInterrupt:
-            print("\n\nOperação cancelada.")
+            print("\nCancelado.")
             sys.exit()
 
 if __name__ == "__main__":
