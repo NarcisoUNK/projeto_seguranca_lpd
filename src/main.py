@@ -25,7 +25,7 @@ def network_menu():
         print("\n--- FERRAMENTAS DE REDE ---")
         print("[1] Port Scanner (TCP Connect)")
         print("[2] UDP Flood (DoS)")
-        print("[3] SYN Flood (Em breve)")
+        print("[3] SYN Flood (TCP SYN Packets)")
         print("[0] Voltar ao Menu Principal")
         
         opt = input("\nEscolha uma opção: ")
@@ -40,6 +40,7 @@ def network_menu():
                 print("[!] Erro: Portos devem ser números.")
 
         elif opt == '2':
+            # UDP Flood
             target = input("Alvo (IP): ")
             try:
                 port = int(input("Porto Alvo (ex: 80, 53): "))
@@ -49,7 +50,20 @@ def network_menu():
                 print("[!] Erro: Valores inválidos.")
                 
         elif opt == '3':
-            print("\n>> SYN Flood ainda não implementado.")
+            # SYN Flood (Requer Admin e Scapy)
+            print("\n[!] NOTA: Este ataque requer privilégios de Administrador.")
+            target = input("Alvo (IP): ")
+            try:
+                port = int(input("Porto Alvo (ex: 80): "))
+                count = int(input("Número de Pacotes (ex: 100): "))
+                
+                # Chama a função no módulo dos_attacks
+                dos_attacks.syn_flood(target, port, count)
+                
+            except ValueError:
+                print("[!] Erro: Valores inválidos. Insira números inteiros.")
+            
+            input("\nPressione ENTER para continuar...")
         
         elif opt == '0':
             break
