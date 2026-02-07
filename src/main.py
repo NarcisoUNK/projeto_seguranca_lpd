@@ -7,9 +7,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Imports dos nossos módulos
 from network import scanner
 from network import dos_attacks
+from network import port_knocking
 from security import pass_manager
-from logs import analyzer      # <--- Módulo de Logs
-from reporting import reports  # <--- Módulo de Relatórios
+from logs import analyzer       # <--- Módulo de Logs (Agora Ativo)
+from reporting import reports   # <--- Módulo de Relatórios
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -29,6 +30,7 @@ def network_menu():
         print("[1] Port Scanner (TCP Connect)")
         print("[2] UDP Flood (DoS)")
         print("[3] SYN Flood (TCP SYN Packets)")
+        print("[4] Port Knocking (Cliente SSH)")
         print("[0] Voltar ao Menu Principal")
         
         opt = input("\nEscolha uma opção: ")
@@ -43,7 +45,6 @@ def network_menu():
                 print("[!] Erro: Portos devem ser números.")
 
         elif opt == '2':
-            # UDP Flood
             target = input("Alvo (IP): ")
             try:
                 port = int(input("Porto Alvo (ex: 80, 53): "))
@@ -53,19 +54,24 @@ def network_menu():
                 print("[!] Erro: Valores inválidos.")
                 
         elif opt == '3':
-            # SYN Flood (Requer Admin e Scapy)
             print("\n[!] NOTA: Este ataque requer privilégios de Administrador.")
             target = input("Alvo (IP): ")
             try:
                 port = int(input("Porto Alvo (ex: 80): "))
                 count = int(input("Número de Pacotes (ex: 100): "))
-                
-                # Chama a função no módulo dos_attacks
                 dos_attacks.syn_flood(target, port, count)
-                
             except ValueError:
-                print("[!] Erro: Valores inválidos. Insira números inteiros.")
-            
+                print("[!] Erro: Valores inválidos.")
+            input("\nPressione ENTER para continuar...")
+
+        elif opt == '4':
+            target = input("IP do Servidor: ")
+            ports_str = input("Sequência de Portos (ex: 7000,8000,9000): ")
+            try:
+                ports = [p.strip() for p in ports_str.split(',')]
+                port_knocking.knock(target, ports)
+            except Exception as e:
+                print(f"[!] Erro na sequência: {e}")
             input("\nPressione ENTER para continuar...")
         
         elif opt == '0':
@@ -79,7 +85,7 @@ def main_menu():
         print_header()
         print("\n=== MENU PRINCIPAL ===")
         print("[1] Ferramentas de Rede (Scanner, Floods)")
-        print("[2] Análise de Logs e Geolocalização")
+        print("[2] Análise de Logs e Geolocalização")  # <--- Opção agora funcional
         print("[3] Segurança (Password Manager, Chat)")
         print("[4] Relatórios e Base de Dados")
         print("[0] Sair")
@@ -89,13 +95,11 @@ def main_menu():
         if choice == '1':
             network_menu() 
         elif choice == '2':
-            # Chama o menu de Logs (Já implementado)
+            # AGORA CHAMA O MÓDULO REAL
             analyzer.menu()
         elif choice == '3':
-            # Chama o menu do Password Manager (Já implementado)
             pass_manager.menu() 
         elif choice == '4':
-            # Chama o menu de Relatórios (Já implementado)
             reports.menu()
         elif choice == '0':
             sys.exit()
