@@ -7,6 +7,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Imports dos nossos módulos
 from network import scanner
 from network import dos_attacks
+from security import pass_manager
+from logs import analyzer      # <--- Módulo de Logs
+from reporting import reports  # <--- Módulo de Relatórios
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -84,16 +87,16 @@ def main_menu():
         choice = input("\nEscolha uma opção: ")
         
         if choice == '1':
-            network_menu() # Chama o sub-menu
+            network_menu() 
         elif choice == '2':
-            print("\n>> [Em Desenvolvimento] Logs...")
-            input("Enter para voltar...")
+            # Chama o menu de Logs (Já implementado)
+            analyzer.menu()
         elif choice == '3':
-            print("\n>> [Em Desenvolvimento] Segurança...")
-            input("Enter para voltar...")
+            # Chama o menu do Password Manager (Já implementado)
+            pass_manager.menu() 
         elif choice == '4':
-            print("\n>> [Em Desenvolvimento] Relatórios...")
-            input("Enter para voltar...")
+            # Chama o menu de Relatórios (Já implementado)
+            reports.menu()
         elif choice == '0':
             sys.exit()
 
