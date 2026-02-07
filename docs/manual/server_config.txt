@@ -1,0 +1,27 @@
+=== CONFIGURAÇÃO DO SERVIDOR LINUX (PORT KNOCKING) ===
+
+Para o sistema funcionar, o servidor deve ter o serviço 'knockd' e 'iptables' configurados.
+
+1. Instalação:
+   $ sudo apt-get install knockd iptables-persistent
+
+2. Configuração (/etc/knockd.conf):
+   [openSSH]
+       sequence    = 7000,8000,9000
+       seq_timeout = 5
+       command     = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+       tcpflags    = syn
+
+   [closeSSH]
+       sequence    = 9000,8000,7000
+       seq_timeout = 5
+       command     = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+       tcpflags    = syn
+
+3. Ativar Firewall (Bloquear SSH por defeito):
+   $ sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+   $ sudo iptables -A INPUT -p tcp --dport 22 -j DROP
+   $ sudo netfilter-persistent save
+
+4. Iniciar serviço:
+   $ sudo service knockd restart
