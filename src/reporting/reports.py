@@ -41,7 +41,39 @@ def export_pdf(filename, title, content_lines):
         return False
 
 def menu():
-    print("\n=== GERAÇÃO DE RELATÓRIOS ===")
-    print("Este módulo é utilizado automaticamente pelas outras ferramentas")
-    print("para exportar resultados (Scans, Logs, etc).")
-    input("Pressione ENTER para voltar...")
+    while True:
+        print("\n=== GERAÇÃO DE RELATÓRIOS (TESTE) ===")
+        print("[1] Gerar PDF de Teste (Manual)")
+        print("[0] Voltar")
+        
+        escolha = input("\nEscolha uma opção: ")
+
+        if escolha == "1":
+            print("\n--- A Gerar Relatório de Exemplo ---")
+            # Dados falsos para testar o motor PDF
+            nome_ficheiro = "teste_manual.pdf"
+            titulo = "Relatório de Segurança - TESTE MANUAL"
+            linhas = [
+                "Este é um teste do módulo de relatórios.",
+                "----------------------------------------",
+                "Item 1: O sistema está funcional.",
+                "Item 2: A geração de PDF com ReportLab funciona.",
+                "Item 3: O Python é espetacular.",
+                "----------------------------------------",
+                f"Teste realizado por: {os.getlogin() if hasattr(os, 'getlogin') else 'Utilizador'}"
+            ]
+            
+            # Chama a tua função export_pdf
+            sucesso = export_pdf(nome_ficheiro, titulo, linhas)
+            
+            if sucesso:
+                print(f"[SUCCESS] Vai à pasta 'reports' e abre o ficheiro '{nome_ficheiro}'!")
+                input("Pressione ENTER para continuar...")
+            else:
+                print("[ERROR] Falha ao criar o PDF.")
+                input("Pressione ENTER para continuar...")
+
+        elif escolha == "0":
+            break
+        else:
+            print("[!] Opção inválida.")
