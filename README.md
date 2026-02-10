@@ -1,6 +1,4 @@
-Aqui tens o manual formatado em **Markdown** profissional, pronto para ser usado num ficheiro `README.md` no GitHub ou para entregar como documentação técnica.
 
-Adicionei "Badges", ícones e tabelas para ficar com um aspeto visual moderno e organizado.
 
 ---
 
